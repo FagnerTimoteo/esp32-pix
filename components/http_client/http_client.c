@@ -1,4 +1,5 @@
 #include "http_client.h"
+#include <inttypes.h>
 
 static const char *TAG = "Http client";
 
@@ -66,6 +67,9 @@ esp_err_t _http_event_handler(esp_http_client_event_t *evt)
             }
             output_len = 0;
             break;
+        case HTTP_EVENT_REDIRECT:
+            ESP_LOGD(TAG, "HTTP_EVENT_REDIRECT");
+            break;
     }
     return ESP_OK;
 }
@@ -73,7 +77,7 @@ esp_err_t _http_event_handler(esp_http_client_event_t *evt)
 void http_get_qrcode(char *buffer, uint32_t order_id)
 {
     char query[30];
-    sprintf(query, "id=%d", order_id);
+    sprintf(query, "id=%" PRIu32, order_id);
 
     esp_http_client_config_t config = {
         .host = CONFIG_PIX_GATEWAY_HOST,
@@ -97,7 +101,7 @@ void http_get_qrcode(char *buffer, uint32_t order_id)
         int data_len = esp_http_client_read_response(client, buffer, content_len);
         ESP_LOGI(TAG, "Read length = %d", data_len);
         buffer[content_len] = 0;
-        ESP_LOGI(TAG, "HTTP GET Status = %d, content_length = %d",
+        ESP_LOGI(TAG, "HTTP GET Status = %d, content_length = %" PRId64,
                 esp_http_client_get_status_code(client),
                 esp_http_client_get_content_length(client));
     } else {
@@ -130,7 +134,7 @@ void http_get_qrcode_test(char *buffer)
         int data_len = esp_http_client_read_response(client, buffer, content_len);
         ESP_LOGI(TAG, "Read length = %d", data_len);
         buffer[content_len] = 0;
-        ESP_LOGI(TAG, "HTTP GET Status = %d, content_length = %d",
+        ESP_LOGI(TAG, "HTTP GET Status = %d, content_length = %" PRId64,
                 esp_http_client_get_status_code(client),
                 esp_http_client_get_content_length(client));
     } else {
@@ -143,7 +147,7 @@ void http_get_qrcode_test(char *buffer)
 uint8_t http_get_order_status(uint32_t order_id)
 {
     char path[85];
-    sprintf(path, "/pix-gateway/v1/orders/%d/status", order_id);
+    sprintf(path, "/pix-gateway/v1/orders/%" PRIu32 "/status", order_id);
 
     esp_http_client_config_t config = {
         .host = CONFIG_PIX_GATEWAY_HOST,
@@ -172,7 +176,7 @@ uint8_t http_get_order_status(uint32_t order_id)
         } else {
             ESP_LOGE(TAG, "Content Length bigger than expected");
         }
-        ESP_LOGI(TAG, "HTTP GET Status = %d, content_length = %d",
+        ESP_LOGI(TAG, "HTTP GET Status = %d, content_length = %" PRId64,
                 esp_http_client_get_status_code(client),
                 esp_http_client_get_content_length(client));
     } else {

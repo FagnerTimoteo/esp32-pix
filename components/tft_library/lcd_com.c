@@ -10,7 +10,6 @@
 #include "i2s_lcd_driver.h"
 #include "hal/gpio_ll.h" // idf-py ver5
 #include "driver/gpio.h"
-#include "driver/adc_common.h"
 
 #define TAG "LCD_COM"
 

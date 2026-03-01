@@ -26,6 +26,6 @@
 #define WIFI_FAIL_BIT      BIT1
 
 /* FreeRTOS event group to signal when we are connected*/
-EventGroupHandle_t s_wifi_event_group;
+extern EventGroupHandle_t s_wifi_event_group;
 
 void wifi_init_sta(char* wifi_ssid, char* wifi_password);

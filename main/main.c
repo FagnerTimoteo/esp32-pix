@@ -3,11 +3,14 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <inttypes.h>
 
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "driver/gpio.h"
+#include "esp_rom_gpio.h"
 #include "driver/timer.h"
+#include "soc/timer_group_struct.h"
 #include "sdkconfig.h"
 //#include "ili9488.h"
 #include "qrcodegen.h"
@@ -212,7 +215,7 @@ void save_nvs_data(nvs_handle_t *nvs_handle, uint32_t data);
 
 void print_last_order(TFT_t* dev, char * info, uint32_t last_order)
 {
-  sprintf(info, "Ultima Compra: %d", last_order);
+  sprintf(info, "Ultima Compra: %" PRIu32, last_order);
   lcdDrawString(dev, fx24G, 10, 460, (uint8_t *) info, BLUE);
 }
 
@@ -497,10 +500,11 @@ static void timer_configure(void)
   //int timer_group = TIMER_GROUP_0;
   int timer_idx = TIMER_0;
 
-  timer_config_t config;
+  timer_config_t config = {0};
   config.alarm_en = 1;
   config.auto_reload = 1;
   config.counter_dir = TIMER_COUNT_UP;
+  config.clk_src = TIMER_SRC_CLK_APB;
   config.divider = 80;
   config.intr_type = TIMER_INTR_LEVEL;
   config.counter_en = TIMER_PAUSE;
@@ -523,11 +527,11 @@ static void timer_configure(void)
 
 void IRAM_ATTR timer_tick_func(void *para)
 {
-  TIMERG0.hw_timer[TIMER_0].update = 1;
-  TIMERG0.int_clr_timers.t0 = 1;
+  TIMERG0.hw_timer[TIMER_0].update.tx_update = 1;
+  TIMERG0.int_clr_timers.t0_int_clr = 1;
 
   tickNumber++;
-  TIMERG0.hw_timer[TIMER_0].config.alarm_en = 1;
+  TIMERG0.hw_timer[TIMER_0].config.tx_alarm_en = 1;
 }
 
 uint32_t read_nvs_data(nvs_handle_t *nvs_handle) {
@@ -537,7 +541,7 @@ uint32_t read_nvs_data(nvs_handle_t *nvs_handle) {
   switch (err) {
     case ESP_OK:
       ESP_LOGI(TAG, "Done");
-      ESP_LOGI(TAG, "Last Id = %d", last_id);
+      ESP_LOGI(TAG, "Last Id = %" PRIu32, last_id);
       break;
     case ESP_ERR_NVS_NOT_FOUND:
       ESP_LOGE(TAG, "The value is not initialized yet!");

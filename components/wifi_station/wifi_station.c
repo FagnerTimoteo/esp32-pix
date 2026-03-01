@@ -1,6 +1,7 @@
 #include "wifi_station.h"
 
 static const char *TAG = "wifi station";
+EventGroupHandle_t s_wifi_event_group;
 
 static int s_retry_num = 0;
 

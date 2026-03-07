@@ -26,143 +26,13 @@
 #include "lcd_com.h"
 #include "lcd_lib.h"
 #include "fontx.h"
+#include "st7735.h"
 
 #include "sdcard.h"
 
-#if CONFIG_INTERFACE_I2S
-#define INTERFACE INTERFACE_I2S
-#elif CONFIG_INTERFACE_GPIO
-#define INTERFACE INTERFACE_GPIO
-#elif CONFIG_INTERFACE_REG
 #define INTERFACE INTERFACE_REG
-#endif
-
-#if CONFIG_ILI9225
-#include "ili9225.h"
-#define DRIVER "ILI9225"
-#define INIT_FUNCTION(a, b, c, d, e) ili9225_lcdInit(a, b, c, d, e)
-
-#elif CONFIG_ILI9226
-#include "ili9225.h"
-#define DRIVER "ILI9226"
-#define INIT_FUNCTION(a, b, c, d, e) ili9225_lcdInit(a, b, c, d, e)
-
-#elif CONFIG_ILI9320
-#include "ili9320.h"
-#define DRIVER "ILI9320"
-#define INIT_FUNCTION(a, b, c, d, e) ili9320_lcdInit(a, b, c, d, e)
-
-#elif CONFIG_ILI9325
-#include "ili9325.h"
-#define DRIVER "ILI9325"
-#define INIT_FUNCTION(a, b, c, d, e) ili9325_lcdInit(a, b, c, d, e)
-
-#elif CONFIG_ILI9327
-#include "ili9327.h"
-#define DRIVER "ILI9327"
-#define INIT_FUNCTION(a, b, c, d, e) ili9327_lcdInit(a, b, c, d, e)
-
-#elif CONFIG_ILI9340
-#include "ili9341.h"
-#define DRIVER "ILI9340"
-#define INIT_FUNCTION(a, b, c, d, e) ili9341_lcdInit(a, b, c, d, e)
-
-#elif CONFIG_ILI9341
-#include "ili9341.h"
-#define DRIVER "ILI9341"
-#define INIT_FUNCTION(a, b, c, d, e) ili9341_lcdInit(a, b, c, d, e)
-
-#elif CONFIG_ILI9342
-#include "ili9342.h"
-#define DRIVER "ILI9342"
-#define INIT_FUNCTION(a, b, c, d, e) ili9342_lcdInit(a, b, c, d, e)
-
-#elif CONFIG_ILI9481
-#include "ili9481.h"
-#define DRIVER "ILI9481"
-#define INIT_FUNCTION(a, b, c, d, e) ili9481_lcdInit(a, b, c, d, e)
-
-#elif CONFIG_ILI9486
-#include "ili9486.h"
-#define DRIVER "ILI9486"
-#define INIT_FUNCTION(a, b, c, d, e) ili9486_lcdInit(a, b, c, d, e)
-
-#elif CONFIG_ILI9488
-#include "ili9488.h"
-#define DRIVER "ILI9488"
-#define INIT_FUNCTION(a, b, c, d, e) ili9488_lcdInit(a, b, c, d, e)
-
-#elif CONFIG_SPFD5408
-#include "ili9320.h"
-#define DRIVER "SPFD5408"
-#define INIT_FUNCTION(a, b, c, d, e) ili9320_lcdInit(a, b, c, d, e)
-
-#elif CONFIG_R61505
-#include "ili9320.h"
-#define DRIVER "R61505"
-#define INIT_FUNCTION(a, b, c, d, e) ili9320_lcdInit(a, b, c, d, e)
-
-#elif CONFIG_R61509
-#include "r61509.h"
-#define DRIVER "R61509"
-#define INIT_FUNCTION(a, b, c, d, e) r61509_lcdInit(a, b, c, d, e)
-
-#elif CONFIG_LGDP4532
-#include "lgdp4532.h"
-#define DRIVER "LGDP4532"
-#define INIT_FUNCTION(a, b, c, d, e) lgdp4532_lcdInit(a, b, c, d, e)
-
-#elif CONFIG_ST7775
-#include "ili9225.h"
-#define DRIVER "ST7775"
-#define INIT_FUNCTION(a, b, c, d, e) ili9225_lcdInit(a, b, c, d, e)
-
-#elif CONFIG_ST7781
-#include "st7781.h"
-#define DRIVER "ST7781"
-#define INIT_FUNCTION(a, b, c, d, e) st7781_lcdInit(a, b, c, d, e)
-
-#elif CONFIG_ST7783
-#include "st7781.h"
-#define DRIVER "ST7783"
-#define INIT_FUNCTION(a, b, c, d, e) st7781_lcdInit(a, b, c, d, e)
-
-#elif CONFIG_ST7793
-#include "r61509.h"
-#define DRIVER "ST7793"
-#define INIT_FUNCTION(a, b, c, d, e) r61509_lcdInit(a, b, c, d, e)
-
-#elif CONFIG_ST7796
-#include "ili9486.h"
-#define DRIVER "ST7796"
-#define INIT_FUNCTION(a, b, c, d, e) ili9486_lcdInit(a, b, c, d, e)
-
-#elif CONFIG_S6D1121
-#include "s6d1121.h"
-#define DRIVER "S6D1121"
-#define INIT_FUNCTION(a, b, c, d, e) s6d1121_lcdInit(a, b, c, d, e)
-
-#elif CONFIG_HX8347A
-#include "hx8347.h"
-#define DRIVER "HX8347A"
-#define INIT_FUNCTION(a, b, c, d, e) hx8347_lcdInit(a, b, c, d, e)
-
-#elif CONFIG_HX8347D
-#include "hx8347.h"
-#define DRIVER "HX8347D"
-#define INIT_FUNCTION(a, b, c, d, e) hx8347_lcdInit(a, b, c, d, e)
-
-#elif CONFIG_HX8347G
-#include "hx8347.h"
-#define DRIVER "HX8347G"
-#define INIT_FUNCTION(a, b, c, d, e) hx8347_lcdInit(a, b, c, d, e)
-
-#elif CONFIG_HX8347I
-#include "hx8347.h"
-#define DRIVER "HX8347I"
-#define INIT_FUNCTION(a, b, c, d, e) hx8347_lcdInit(a, b, c, d, e)
-
-#endif
+#define DRIVER "ST7735"
+#define INIT_FUNCTION(a, b, c, d, e) st7735_lcdInit(a, b, c, d, e)
 
 #define INTERVAL		400
 #define WAIT	vTaskDelay(INTERVAL)
@@ -176,6 +46,14 @@
 #define ATUADOR                 15
 
 #define LAST_ID_KEY             "last_id"
+#define QR_REGION_X1            0
+#define QR_REGION_Y1            20
+#define QR_REGION_X2            127
+#define QR_REGION_Y2            159
+#define TIMER_REGION_X1         0
+#define TIMER_REGION_Y1         144
+#define TIMER_REGION_X2         127
+#define TIMER_REGION_Y2         159
 
 uint8_t current_status;
 uint32_t tickNumber = 0;
@@ -208,6 +86,7 @@ void IRAM_ATTR timer_tick_func(void *para);
 static void print_qrcode(TFT_t* dev, const uint8_t qrcode[]);
 
 static void timer_configure(void);
+static void tft_self_test(TFT_t *dev);
 
 uint32_t read_nvs_data(nvs_handle_t *nvs_handle);
 
@@ -216,7 +95,7 @@ void save_nvs_data(nvs_handle_t *nvs_handle, uint32_t data);
 void print_last_order(TFT_t* dev, char * info, uint32_t last_order)
 {
   sprintf(info, "Ultima Compra: %" PRIu32, last_order);
-  lcdDrawString(dev, fx24G, 10, 460, (uint8_t *) info, BLUE);
+  lcdDrawString(dev, fx16G, 2, 2, (uint8_t *) info, BLUE);
 }
 
 static void SPIFFS_Directory(char * path) {
@@ -312,6 +191,8 @@ void app_main()
 
 	INIT_FUNCTION(&dev, CONFIG_WIDTH, CONFIG_HEIGHT, CONFIG_OFFSETX, CONFIG_OFFSETY);
 
+  tft_self_test(&dev);
+
   // Preenche o LCD com o Fundo Preto
   lcdFillScreen(&dev, BLACK);
 
@@ -378,10 +259,10 @@ void app_main()
       {
         case STATUS_WAIT_USER_INPUT:
           if (primeira_vez == true) {
-            sprintf(info, "PRESSIONE O BOTAO");
-            lcdDrawString(&dev, fx24G, 6, 46, (uint8_t *) info, YELLOW);
+            sprintf(info, "APERTE BOTAO");
+            lcdDrawString(&dev, fx16G, 2, 16, (uint8_t *) info, YELLOW);
             sprintf(info, "PARA PAGAR");
-            lcdDrawString(&dev, fx24G, 6, 76, (uint8_t *) info, YELLOW);
+            lcdDrawString(&dev, fx16G, 2, 32, (uint8_t *) info, YELLOW);
             primeira_vez = false;
           }
           if (gpio_get_level(BUTTON_INPUT) == 0) 
@@ -397,6 +278,9 @@ void app_main()
           }
           break;
         case STATUS_REQUEST_QRCODE:
+          // Clear previous drawings before rendering a new QR frame.
+          lcdFillScreen(&dev, BLACK);
+          print_last_order(&dev, info, last_id);
           http_get_qrcode(buffer, last_id);
           // http_get_qrcode_test(buffer);
           ESP_LOGI(TAG, "QR CODE: %s", buffer);
@@ -420,7 +304,8 @@ void app_main()
             }
             
             sprintf(info, "%02d:%02d:%02d", horas, minutos, segundos);
-            lcdDrawString(&dev, fx16G, 30, 420, (uint8_t *) info, GREEN);
+            lcdDrawFillRect(&dev, TIMER_REGION_X1, TIMER_REGION_Y1, TIMER_REGION_X2, TIMER_REGION_Y2, BLACK);
+            lcdDrawString(&dev, fx16G, 2, 160, (uint8_t *) info, GREEN);
 
             if (minutos == 2) {
               current_status = STATUS_WAIT_USER_INPUT;
@@ -431,7 +316,7 @@ void app_main()
               lcdFillScreen(&dev, BLACK);
               print_last_order(&dev, info, last_id);
               sprintf(info, "TEMPO ESGOTADO!!!");
-              lcdDrawString(&dev, fx32G, 30, 136, (uint8_t *) info, RED);
+              lcdDrawString(&dev, fx16G, 2, 80, (uint8_t *) info, RED);
             } else {
               if (segundos % 10 == 0) {
                 ESP_LOGI(TAG, "Verficando Pagamento");
@@ -442,7 +327,7 @@ void app_main()
                   lcdFillScreen(&dev, BLACK);
                   print_last_order(&dev, info, last_id);
                   sprintf(info, "PAGAMENTO EFETUADO!!!");
-                  lcdDrawString(&dev, fx32G, 30, 136, (uint8_t *) info, GREEN);
+                  lcdDrawString(&dev, fx16G, 2, 80, (uint8_t *) info, GREEN);
                   gpio_set_level(ATUADOR, 1);
                   current_status = STATUS_ACTUATE_ON_GPIO;
                   segundos = minutos = horas = 0;
@@ -463,7 +348,8 @@ void app_main()
               minutos++;
             }
             sprintf(info, "%02d:%02d:%02d", horas, minutos, segundos);
-            lcdDrawString(&dev, fx16G, 30, 420, (uint8_t *) info, GREEN);
+            lcdDrawFillRect(&dev, TIMER_REGION_X1, TIMER_REGION_Y1, TIMER_REGION_X2, TIMER_REGION_Y2, BLACK);
+            lcdDrawString(&dev, fx16G, 2, 160, (uint8_t *) info, GREEN);
             if (segundos == 10) {
               current_status = STATUS_WAIT_USER_INPUT;
               primeira_vez = true;
@@ -482,7 +368,7 @@ void app_main()
     } else if (bits & WIFI_FAIL_BIT) {
       if (primeira_vez == true) {
         sprintf(info, "Falha ao conectar ao WiFi!!!");
-        lcdDrawString(&dev, fx32G, 30, 136, (uint8_t *) info, RED);
+        lcdDrawString(&dev, fx16G, 2, 80, (uint8_t *) info, RED);
         primeira_vez = false;
       }
     } else {
@@ -534,6 +420,22 @@ void IRAM_ATTR timer_tick_func(void *para)
   TIMERG0.hw_timer[TIMER_0].config.tx_alarm_en = 1;
 }
 
+static void tft_self_test(TFT_t *dev)
+{
+  lcdFillScreen(dev, RED);
+  vTaskDelay(pdMS_TO_TICKS(700));
+  lcdFillScreen(dev, GREEN);
+  vTaskDelay(pdMS_TO_TICKS(700));
+  lcdFillScreen(dev, BLUE);
+  vTaskDelay(pdMS_TO_TICKS(700));
+  lcdFillScreen(dev, WHITE);
+  vTaskDelay(pdMS_TO_TICKS(700));
+  lcdFillScreen(dev, BLACK);
+
+  lcdSetFontDirection(dev, 0);
+  vTaskDelay(pdMS_TO_TICKS(1800));
+}
+
 uint32_t read_nvs_data(nvs_handle_t *nvs_handle) {
   ESP_LOGI(TAG, "Reading restart counter from NVS ... ");
   uint32_t last_id = 0; 
@@ -573,10 +475,14 @@ void save_nvs_data(nvs_handle_t *nvs_handle, uint32_t data) {
 static void print_qrcode(TFT_t* dev, const uint8_t qrcode[]) 
 {
 	int size = qrcodegen_getSize(qrcode);
-	char border = 4;
+	char border = 1;
   char module_size = 4;
   uint16_t color;
   // unsigned char r, g, b;
+
+  // Clear QR drawing area so old pixels don't remain behind.
+  lcdDrawFillRect(dev, QR_REGION_X1, QR_REGION_Y1, QR_REGION_X2, QR_REGION_Y2, WHITE);
+
 	for (int y = -border; y < size + border; y++) 
   {
 		for (int x = -border; x < size + border; x++) 
@@ -588,7 +494,7 @@ static void print_qrcode(TFT_t* dev, const uint8_t qrcode[])
       }
       for (int i = 0; i < module_size; i++) {
         for (int j = 0; j < module_size; j++) {
-          lcdDrawPixel(dev, (x+4)*module_size + j + 6, (y+4)*module_size + i + 86, color);
+          lcdDrawPixel(dev, (x+2)*module_size + j + 0, (y+2)*module_size + i + 32, color);
         }
       }
 		}

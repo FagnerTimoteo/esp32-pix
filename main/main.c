@@ -26,13 +26,13 @@
 #include "lcd_com.h"
 #include "lcd_lib.h"
 #include "fontx.h"
-#include "st7735.h"
+#include "st7796.h"
 
 #include "sdcard.h"
 
 #define INTERFACE INTERFACE_REG
-#define DRIVER "ST7735"
-#define INIT_FUNCTION(a, b, c, d, e) st7735_lcdInit(a, b, c, d, e)
+#define DRIVER "ST7796S"
+#define INIT_FUNCTION(a, b, c, d, e) st7796_lcdInit(a, b, c, d, e)
 
 #define INTERVAL		400
 #define WAIT	vTaskDelay(INTERVAL)
@@ -46,14 +46,10 @@
 #define ATUADOR                 15
 
 #define LAST_ID_KEY             "last_id"
-#define QR_REGION_X1            0
-#define QR_REGION_Y1            20
-#define QR_REGION_X2            127
-#define QR_REGION_Y2            159
 #define TIMER_REGION_X1         0
-#define TIMER_REGION_Y1         144
-#define TIMER_REGION_X2         127
-#define TIMER_REGION_Y2         159
+#define TIMER_REGION_Y1         440
+#define TIMER_REGION_X2         319
+#define TIMER_REGION_Y2         479
 
 uint8_t current_status;
 uint32_t tickNumber = 0;
@@ -475,13 +471,19 @@ void save_nvs_data(nvs_handle_t *nvs_handle, uint32_t data) {
 static void print_qrcode(TFT_t* dev, const uint8_t qrcode[]) 
 {
 	int size = qrcodegen_getSize(qrcode);
-	char border = 1;
-  char module_size = 4;
+	int border = 2;
+  int module_size = (dev->_width - 32) / (size + (border * 2));
+  if (module_size < 1) {
+    module_size = 1;
+  }
+  int qr_pixels = (size + (border * 2)) * module_size;
+  int start_x = (dev->_width - qr_pixels) / 2;
+  int start_y = 72;
   uint16_t color;
   // unsigned char r, g, b;
 
-  // Clear QR drawing area so old pixels don't remain behind.
-  lcdDrawFillRect(dev, QR_REGION_X1, QR_REGION_Y1, QR_REGION_X2, QR_REGION_Y2, WHITE);
+  // Clear only the QR box so old pixels don't remain behind.
+  lcdDrawFillRect(dev, start_x, start_y, start_x + qr_pixels - 1, start_y + qr_pixels - 1, WHITE);
 
 	for (int y = -border; y < size + border; y++) 
   {
@@ -494,7 +496,7 @@ static void print_qrcode(TFT_t* dev, const uint8_t qrcode[])
       }
       for (int i = 0; i < module_size; i++) {
         for (int j = 0; j < module_size; j++) {
-          lcdDrawPixel(dev, (x+2)*module_size + j + 0, (y+2)*module_size + i + 32, color);
+          lcdDrawPixel(dev, start_x + (x + border) * module_size + j, start_y + (y + border) * module_size + i, color);
         }
       }
 		}

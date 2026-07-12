@@ -2,7 +2,7 @@ set(component_srcs
 	"fontx.c"
 	"lcd_com.c"
 	"lcd_lib.c"
-	"st7735.c"
+	"st7796.c"
 )
 
 idf_component_register(SRCS "${component_srcs}"

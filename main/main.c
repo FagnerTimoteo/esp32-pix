@@ -82,7 +82,6 @@ void IRAM_ATTR timer_tick_func(void *para);
 static void print_qrcode(TFT_t* dev, const uint8_t qrcode[]);
 
 static void timer_configure(void);
-static void tft_self_test(TFT_t *dev);
 
 uint32_t read_nvs_data(nvs_handle_t *nvs_handle);
 
@@ -90,8 +89,9 @@ void save_nvs_data(nvs_handle_t *nvs_handle, uint32_t data);
 
 void print_last_order(TFT_t* dev, char * info, uint32_t last_order)
 {
+  lcdDrawFillRect(dev, 0, 0, dev->_width - 1, 34, BLACK);
   sprintf(info, "Ultima Compra: %" PRIu32, last_order);
-  lcdDrawString(dev, fx16G, 2, 2, (uint8_t *) info, BLUE);
+  lcdDrawString(dev, fx16G, 8, 24, (uint8_t *) info, BLUE);
 }
 
 static void SPIFFS_Directory(char * path) {
@@ -187,8 +187,6 @@ void app_main()
 
 	INIT_FUNCTION(&dev, CONFIG_WIDTH, CONFIG_HEIGHT, CONFIG_OFFSETX, CONFIG_OFFSETY);
 
-  tft_self_test(&dev);
-
   // Preenche o LCD com o Fundo Preto
   lcdFillScreen(&dev, BLACK);
 
@@ -255,10 +253,12 @@ void app_main()
       {
         case STATUS_WAIT_USER_INPUT:
           if (primeira_vez == true) {
+            lcdFillScreen(&dev, BLACK);
+            print_last_order(&dev, info, last_id);
             sprintf(info, "APERTE BOTAO");
-            lcdDrawString(&dev, fx16G, 2, 16, (uint8_t *) info, YELLOW);
+            lcdDrawString(&dev, fx24G, 40, 120, (uint8_t *) info, YELLOW);
             sprintf(info, "PARA PAGAR");
-            lcdDrawString(&dev, fx16G, 2, 32, (uint8_t *) info, YELLOW);
+            lcdDrawString(&dev, fx24G, 52, 152, (uint8_t *) info, YELLOW);
             primeira_vez = false;
           }
           if (gpio_get_level(BUTTON_INPUT) == 0) 
@@ -301,7 +301,7 @@ void app_main()
             
             sprintf(info, "%02d:%02d:%02d", horas, minutos, segundos);
             lcdDrawFillRect(&dev, TIMER_REGION_X1, TIMER_REGION_Y1, TIMER_REGION_X2, TIMER_REGION_Y2, BLACK);
-            lcdDrawString(&dev, fx16G, 2, 160, (uint8_t *) info, GREEN);
+            lcdDrawString(&dev, fx24G, 108, 470, (uint8_t *) info, GREEN);
 
             if (minutos == 2) {
               current_status = STATUS_WAIT_USER_INPUT;
@@ -312,7 +312,7 @@ void app_main()
               lcdFillScreen(&dev, BLACK);
               print_last_order(&dev, info, last_id);
               sprintf(info, "TEMPO ESGOTADO!!!");
-              lcdDrawString(&dev, fx16G, 2, 80, (uint8_t *) info, RED);
+              lcdDrawString(&dev, fx24G, 32, 240, (uint8_t *) info, RED);
             } else {
               if (segundos % 10 == 0) {
                 ESP_LOGI(TAG, "Verficando Pagamento");
@@ -323,7 +323,7 @@ void app_main()
                   lcdFillScreen(&dev, BLACK);
                   print_last_order(&dev, info, last_id);
                   sprintf(info, "PAGAMENTO EFETUADO!!!");
-                  lcdDrawString(&dev, fx16G, 2, 80, (uint8_t *) info, GREEN);
+                  lcdDrawString(&dev, fx16G, 64, 240, (uint8_t *) info, GREEN);
                   gpio_set_level(ATUADOR, 1);
                   current_status = STATUS_ACTUATE_ON_GPIO;
                   segundos = minutos = horas = 0;
@@ -345,7 +345,7 @@ void app_main()
             }
             sprintf(info, "%02d:%02d:%02d", horas, minutos, segundos);
             lcdDrawFillRect(&dev, TIMER_REGION_X1, TIMER_REGION_Y1, TIMER_REGION_X2, TIMER_REGION_Y2, BLACK);
-            lcdDrawString(&dev, fx16G, 2, 160, (uint8_t *) info, GREEN);
+            lcdDrawString(&dev, fx24G, 108, 470, (uint8_t *) info, GREEN);
             if (segundos == 10) {
               current_status = STATUS_WAIT_USER_INPUT;
               primeira_vez = true;
@@ -364,7 +364,7 @@ void app_main()
     } else if (bits & WIFI_FAIL_BIT) {
       if (primeira_vez == true) {
         sprintf(info, "Falha ao conectar ao WiFi!!!");
-        lcdDrawString(&dev, fx16G, 2, 80, (uint8_t *) info, RED);
+        lcdDrawString(&dev, fx16G, 48, 240, (uint8_t *) info, RED);
         primeira_vez = false;
       }
     } else {
@@ -414,22 +414,6 @@ void IRAM_ATTR timer_tick_func(void *para)
 
   tickNumber++;
   TIMERG0.hw_timer[TIMER_0].config.tx_alarm_en = 1;
-}
-
-static void tft_self_test(TFT_t *dev)
-{
-  lcdFillScreen(dev, RED);
-  vTaskDelay(pdMS_TO_TICKS(700));
-  lcdFillScreen(dev, GREEN);
-  vTaskDelay(pdMS_TO_TICKS(700));
-  lcdFillScreen(dev, BLUE);
-  vTaskDelay(pdMS_TO_TICKS(700));
-  lcdFillScreen(dev, WHITE);
-  vTaskDelay(pdMS_TO_TICKS(700));
-  lcdFillScreen(dev, BLACK);
-
-  lcdSetFontDirection(dev, 0);
-  vTaskDelay(pdMS_TO_TICKS(1800));
 }
 
 uint32_t read_nvs_data(nvs_handle_t *nvs_handle) {

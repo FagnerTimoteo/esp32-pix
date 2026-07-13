@@ -3,6 +3,46 @@
 
 static const char *TAG = "Http client";
 
+static void normalize_gateway_host(char *out, size_t out_size)
+{
+    const char *host = CONFIG_PIX_GATEWAY_HOST;
+
+    if (strncmp(host, "https://", 8) == 0) {
+        host += 8;
+    } else if (strncmp(host, "http://", 7) == 0) {
+        host += 7;
+    }
+
+    while (*host == '/' || *host == ':') {
+        host++;
+    }
+
+    snprintf(out, out_size, "%s", host);
+
+    char *path = strchr(out, '/');
+    if (path != NULL) {
+        *path = 0;
+    }
+}
+
+static void build_gateway_url(char *out, size_t out_size, const char *path, const char *query)
+{
+    char host[128];
+    normalize_gateway_host(host, sizeof(host));
+
+#if CONFIG_HOST_USE_HTTPS
+    const char *scheme = "https";
+#else
+    const char *scheme = "http";
+#endif
+
+    if (query != NULL && query[0] != 0) {
+        snprintf(out, out_size, "%s://%s%s?%s", scheme, host, path, query);
+    } else {
+        snprintf(out, out_size, "%s://%s%s", scheme, host, path);
+    }
+}
+
 esp_err_t _http_event_handler(esp_http_client_event_t *evt)
 {
     static char *output_buffer;  // Buffer to store response of http request from event handler
@@ -77,15 +117,13 @@ esp_err_t _http_event_handler(esp_http_client_event_t *evt)
 void http_get_qrcode(char *buffer, uint32_t order_id)
 {
     char query[30];
+    char url[256];
     sprintf(query, "id=%" PRIu32, order_id);
+    build_gateway_url(url, sizeof(url), "/pix-gateway/v1/qrcode/", query);
+    ESP_LOGI(TAG, "GET %s", url);
 
     esp_http_client_config_t config = {
-        .host = CONFIG_PIX_GATEWAY_HOST,
-    #if CONFIG_HOST_USE_HTTPS
-        .transport_type = HTTP_TRANSPORT_OVER_SSL,
-    #endif
-        .path = "/pix-gateway/v1/qrcode/",
-        .query = query,
+        .url = url,
         .event_handler = _http_event_handler,
         .timeout_ms = 9000
     };
@@ -113,12 +151,12 @@ void http_get_qrcode(char *buffer, uint32_t order_id)
 
 void http_get_qrcode_test(char *buffer)
 {
+    char url[256];
+    build_gateway_url(url, sizeof(url), "/pix-gateway/v1/teste", NULL);
+    ESP_LOGI(TAG, "GET %s", url);
+
     esp_http_client_config_t config = {
-        .host = CONFIG_PIX_GATEWAY_HOST,
-    #if CONFIG_HOST_USE_HTTPS
-        .transport_type = HTTP_TRANSPORT_OVER_SSL,
-    #endif
-        .path = "/pix-gateway/v1/teste",
+        .url = url,
         .event_handler = _http_event_handler,
         .timeout_ms = 5000
     };
@@ -147,14 +185,13 @@ void http_get_qrcode_test(char *buffer)
 uint8_t http_get_order_status(uint32_t order_id)
 {
     char path[85];
+    char url[256];
     sprintf(path, "/pix-gateway/v1/orders/%" PRIu32 "/status", order_id);
+    build_gateway_url(url, sizeof(url), path, NULL);
+    ESP_LOGI(TAG, "GET %s", url);
 
     esp_http_client_config_t config = {
-        .host = CONFIG_PIX_GATEWAY_HOST,
-    #if CONFIG_HOST_USE_HTTPS
-        .transport_type = HTTP_TRANSPORT_OVER_SSL,
-    #endif
-        .path = path,
+        .url = url,
         .event_handler = _http_event_handler,
         .timeout_ms = 9000
     };
